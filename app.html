@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RSPCB Textile Wastewater Digital Log Book</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --primary:#006D77;
+      --primary-dark:#024851;
+      --secondary:#0EA5A8;
+      --bg:#eef3f4;
+      --card:#ffffff;
+      --text:#17202a;
+      --muted:#64748b;
+      --border:#dde7e5;
+      --danger:#dc2626;
+      --warning:#f59e0b;
+      --success:#16a34a;
+      --info:#2563eb;
+      --font-body:'Inter','Segoe UI',system-ui,-apple-system,Helvetica,Arial,sans-serif;
+      --font-display:'Plus Jakarta Sans','Inter','Segoe UI',sans-serif;
+      --sh-sm:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.05);
+      --sh:0 6px 18px -6px rgba(16,40,42,.16);
+      --sh-lg:0 24px 48px -16px rgba(2,72,81,.28);
+      --r:14px;
+      --r-lg:20px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font-body);
+      background:
+        radial-gradient(1100px 560px at 100% -8%, rgba(14,165,168,.10), transparent 55%),
+        radial-gradient(900px 500px at -5% 0%, rgba(0,109,119,.06), transparent 50%),
+        var(--bg);
+      color:var(--text);
+      font-size:15px;
+      line-height:1.55;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+    }
+    .topbar{
+      background:linear-gradient(120deg,var(--primary-dark) 0%,var(--primary) 45%,#0b8a93 100%);
+      color:#fff;
+      padding:20px 30px;
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      align-items:center;
+      flex-wrap:wrap;
+      box-shadow:0 10px 30px -10px rgba(2,72,81,.55);
+      border-bottom:3px solid var(--secondary);
+      position:relative;
+      z-index:5;
+    }
+    .brand h1{font-size:26px;margin:0 0 4px 0;font-family:var(--font-display);font-weight:800;letter-spacing:-.02em}
+    .brand p{margin:0;font-size:13.5px;opacity:.9;letter-spacing:.01em}
+    .userbox{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      font-size:13px;
+      flex-wrap:wrap;
+    }
+    .pill{
+      background:rgba(255,255,255,.14);
+      padding:9px 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.28);
+      font-weight:600;
+      letter-spacing:.02em;
+      backdrop-filter:blur(6px);
+    }
+    .layout{
+      display:grid;
+      grid-template-columns:250px 1fr;
+      min-height:calc(100vh - 74px);
+    }
+    .sidebar{
+      background:linear-gradient(180deg,#ffffff,#f6faf9);
+      border-right:1px solid var(--border);
+      padding:18px 14px;
+      box-shadow:1px 0 0 rgba(0,0,0,.02);
+    }
+    .navbtn{
+      width:100%;
+      background:transparent;
+      border:0;
+      text-align:left;
+      padding:13px 16px;
+      border-radius:12px;
+      margin-bottom:6px;
+      cursor:pointer;
+      color:#3a4d5c;
+      font-weight:600;
+      font-size:14.5px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      position:relative;
+      transition:background .18s,color .18s,box-shadow .18s,transform .12s;
+    }
+    .navbtn:hover{background:#eaf6f4;color:var(--primary-dark);transform:translateX(2px)}
+    .navbtn.active{
+      background:linear-gradient(135deg,var(--primary),#0b8a93);
+      color:#fff;
+      box-shadow:0 10px 22px -8px rgba(0,109,119,.55);
+    }
+    .navbtn.active::before{
+      content:"";position:absolute;left:7px;top:50%;transform:translateY(-50%);
+      width:4px;height:52%;background:rgba(255,255,255,.85);border-radius:4px;
+    }
+    .main{padding:28px 32px;overflow:auto}
+    .section{display:none}
+    .section.active{display:block;animation:fadeUp .45s cubic-bezier(.22,.8,.2,1)}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+      gap:18px;
+      margin-bottom:24px;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--r-lg);
+      padding:22px;
+      box-shadow:var(--sh-sm);
+    }
+    .grid>.card{
+      position:relative;overflow:hidden;
+      background:linear-gradient(165deg,#ffffff 0%,#f4faf9 100%);
+      border-radius:var(--r-lg);
+      padding:24px 26px;
+      box-shadow:var(--sh);
+      transition:transform .25s cubic-bezier(.22,.8,.2,1),box-shadow .25s;
+    }
+    .grid>.card::before{content:"";position:absolute;left:0;top:0;width:100%;height:5px;background:linear-gradient(90deg,var(--primary),var(--secondary))}
+    .grid>.card::after{content:"";position:absolute;right:-34px;top:-34px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(14,165,168,.18),transparent 70%)}
+    .grid>.card:hover{transform:translateY(-5px);box-shadow:var(--sh-lg)}
+    .stat-label{font-size:13.5px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.07em;font-weight:700}
+    .stat-value{font-size:60px;line-height:1;font-weight:800;color:var(--primary);font-family:var(--font-display);font-feature-settings:"tnum";letter-spacing:-.02em}
+    .stat-small{font-size:13px;color:var(--muted);margin-top:14px;font-weight:500}
+    h2{margin:0 0 16px 0;font-size:26px;font-weight:800;font-family:var(--font-display);letter-spacing:-.015em;color:#0e2c2e}
+    h3{margin:0 0 14px 0;font-size:18px;font-weight:800;font-family:var(--font-display);color:#15383a}
+    .toolbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:20px;
+    }
+    input,select,textarea{
+      width:100%;
+      padding:12px 14px;
+      border:1.5px solid #d7e3e1;
+      border-radius:11px;
+      background:#fff;
+      font-size:14.5px;
+      font-family:inherit;
+      color:var(--text);
+      outline:none;
+      transition:border-color .15s,box-shadow .15s;
+    }
+    input:focus,select:focus,textarea:focus{border-color:var(--secondary);box-shadow:0 0 0 4px rgba(14,165,168,.15)}
+    label{font-size:13px;font-weight:700;margin-bottom:7px;display:block;color:#33485a;letter-spacing:.01em}
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
+    }
+    .form-grid.two{grid-template-columns:repeat(2,1fr)}
+    .full{grid-column:1 / -1}
+    .btn{
+      border:0;
+      padding:12px 18px;
+      border-radius:11px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:14px;
+      font-family:inherit;
+      letter-spacing:.01em;
+      background:linear-gradient(135deg,var(--primary),#0b8a93);
+      color:#fff;
+      box-shadow:0 6px 16px -6px rgba(0,109,119,.55);
+      transition:transform .12s,box-shadow .2s,filter .2s,background .2s;
+    }
+    .btn:hover{filter:brightness(1.06);transform:translateY(-1px);box-shadow:0 10px 22px -6px rgba(0,109,119,.55)}
+    .btn:active{transform:translateY(0)}
+    .btn.secondary{background:#ffffff;color:var(--primary-dark);border:1.5px solid #cfe0de;box-shadow:none}
+    .btn.secondary:hover{background:#eef7f5;filter:none}
+    .btn.danger{background:linear-gradient(135deg,#dc2626,#b91c1c);box-shadow:0 6px 16px -6px rgba(220,38,38,.5)}
+    .btn.warning{background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 6px 16px -6px rgba(245,158,11,.5)}
+    .btn.success{background:linear-gradient(135deg,#16a34a,#15803d);box-shadow:0 6px 16px -6px rgba(22,163,74,.5)}
+    .btn.info{background:linear-gradient(135deg,#2563eb,#1d4ed8);box-shadow:0 6px 16px -6px rgba(37,99,235,.5)}
+    .btn.small{padding:8px 12px;font-size:12.5px;border-radius:9px;box-shadow:none}
+    .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:14px;
+      background:#fff;
+      border-radius:14px;
+      overflow:hidden;
+    }
+    th,td{
+      border-bottom:1px solid #eef3f2;
+      padding:14px 16px;
+      text-align:left;
+      vertical-align:middle;
+    }
+    th{font-weight:700;color:#33485a}
+    thead th{
+      background:linear-gradient(180deg,#f1f8f7,#e8f2f1);
+      color:var(--primary-dark);
+      font-size:11.5px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      border-bottom:2px solid #d6e6e3;
+      white-space:nowrap;
+    }
+    tbody td{color:#26333d}
+    tbody tr:nth-child(even) td{background:#fafdfc}
+    tbody tr:hover td{background:#ecf8f6}
+    tbody tr:last-child td{border-bottom:0}
+    td b{color:#102a2c}
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.02em;
+      white-space:nowrap;
+      border:1px solid transparent;
+    }
+    .badge::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+    .badge.pending{background:#fef6da;color:#92400e;border-color:#fde9b8}
+    .badge.approved{background:#dcfce7;color:#166534;border-color:#bbf7d0}
+    .badge.rejected{background:#fee2e2;color:#991b1b;border-color:#fecaca}
+    .badge.late{background:#ffedd5;color:#9a3412;border-color:#fed7aa}
+    .badge.corrected{background:#dbeafe;color:#1e40af;border-color:#bfdbfe}
+    .badge.active{background:#dcfce7;color:#166534;border-color:#bbf7d0}
+    .badge.inactive{background:#eef2f3;color:#475569;border-color:#e2e8f0}
+    .notice{
+      padding:14px 18px;
+      border-radius:14px;
+      background:linear-gradient(135deg,#ecfeff,#f0fdfa);
+      border:1px solid #bbe9e5;
+      border-left:5px solid var(--secondary);
+      color:#0e5b60;
+      margin-bottom:18px;
+      font-size:14.5px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      box-shadow:var(--sh-sm);
+    }
+    .notice::before{content:"i";font-style:italic;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--secondary);color:#fff;font-weight:800;font-size:14px;flex:none}
+    .mini{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.5;
+    }
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(7,28,30,.5);
+      backdrop-filter:blur(5px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      z-index:10;
+    }
+    .modal.show{display:flex;animation:fadeUp .25s ease}
+    .modal-content{
+      width:min(720px,100%);
+      max-height:90vh;
+      overflow:auto;
+      background:#fff;
+      border-radius:22px;
+      padding:26px;
+      border:1px solid #e3eceb;
+      box-shadow:0 36px 80px -24px rgba(2,28,30,.55);
+    }
+    .kpi-row{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:14px;
+      margin-bottom:18px;
+    }
+    .kpi{
+      position:relative;overflow:hidden;
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:18px;
+      background:linear-gradient(165deg,#fff,#f5fbfa);
+      box-shadow:var(--sh-sm);
+    }
+    .kpi::before{content:"";position:absolute;left:0;top:0;width:100%;height:4px;background:linear-gradient(90deg,var(--primary),var(--secondary))}
+    .kpi .mini{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+    .kpi b{font-size:32px;font-weight:800;color:var(--primary);font-family:var(--font-display);font-feature-settings:"tnum"}
+    .searchline{
+      display:grid;
+      grid-template-columns:1.2fr 1fr 1fr 1fr auto;
+      gap:10px;
+      align-items:end;
+    }
+    .login{
+      max-width:460px;
+      margin:0 auto;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:24px;
+      padding:34px 30px;
+      box-shadow:0 30px 70px -24px rgba(2,72,81,.35);
+      position:relative;
+    }
+    .login::before{
+      content:"RSPCB";
+      display:grid;place-items:center;
+      width:74px;height:74px;margin:0 auto 18px;
+      border-radius:20px;
+      background:linear-gradient(135deg,var(--primary),#0b8a93);
+      color:#fff;font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:.04em;
+      box-shadow:0 14px 30px -10px rgba(0,109,119,.6);
+    }
+    .login h1{margin:0 0 8px;font-size:26px;text-align:center;font-family:var(--font-display);font-weight:800}
+    .login p{margin:0 0 20px;color:var(--muted);text-align:center}
+    .app{display:none}
+    .app.show{display:block}
+    .login-screen{
+      display:grid;place-items:center;min-height:100vh;padding:24px;
+      background:
+        radial-gradient(900px 480px at 50% -10%, rgba(14,165,168,.18), transparent 60%),
+        radial-gradient(700px 400px at 90% 110%, rgba(0,109,119,.12), transparent 60%),
+        var(--bg);
+    }
+    .login-screen.hide{display:none}
+    .print-title{display:none}
+    @media(max-width:1050px){
+      .layout{grid-template-columns:1fr}
+      .sidebar{display:flex;overflow:auto;gap:8px;border-right:0;border-bottom:1px solid var(--border)}
+      .navbtn{min-width:170px;margin:0}
+      .grid,.kpi-row{grid-template-columns:repeat(2,1fr)}
+      .form-grid,.form-grid.two{grid-template-columns:1fr}
+      .searchline{grid-template-columns:1fr}
+    }
+    @media(max-width:640px){
+      .grid,.kpi-row{grid-template-columns:1fr}
+      .main{padding:14px}
+      table{font-size:12px}
+      th,td{padding:8px}
+    }
+    @media print{
+      .topbar,.sidebar,.btn,.toolbar .btnrow,.searchline,.no-print{display:none !important}
+      .layout{display:block}
+      .main{padding:0}
+      .section{display:block}
+      .section:not(.active){display:none}
+      .card{box-shadow:none;border:0}
+      body{background:#fff}
+      .print-title{display:block}
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    /* Presentation-grade chart styling defaults (visual only) */
+    if(window.Chart){
+      Chart.defaults.font.family = "'Inter','Segoe UI',sans-serif";
+      Chart.defaults.font.size = 13;
+      Chart.defaults.color = "#475569";
+      Chart.defaults.plugins.legend.labels.usePointStyle = true;
+      Chart.defaults.plugins.legend.labels.boxWidth = 12;
+      Chart.defaults.plugins.legend.labels.padding = 16;
+      Chart.defaults.plugins.tooltip.backgroundColor = "#0e2c2e";
+      Chart.defaults.plugins.tooltip.padding = 12;
+      Chart.defaults.plugins.tooltip.cornerRadius = 10;
+      Chart.defaults.plugins.tooltip.titleFont = {weight:'700', size:13};
+      Chart.defaults.plugins.tooltip.bodyFont = {size:13};
+      Chart.defaults.plugins.tooltip.displayColors = true;
+      Chart.defaults.plugins.tooltip.boxPadding = 6;
+    }
+  </script>
+  <style>
+    /* ===== Individual ETP's section (scoped) ===== */
+    #individualEtp .etp-hero{
+      background:
+        radial-gradient(600px 240px at 100% 0%, rgba(255,255,255,.14), transparent 60%),
+        linear-gradient(120deg,var(--primary-dark),var(--primary) 55%,#0b8a93);
+      color:#fff;border-radius:var(--r-lg);
+      padding:30px 34px;margin-bottom:22px;display:flex;justify-content:space-between;gap:24px;
+      align-items:center;flex-wrap:wrap;box-shadow:0 20px 44px -18px rgba(0,109,119,.6);
+      border:1px solid rgba(255,255,255,.12);
+    }
+    #individualEtp .etp-hero h1{font-size:34px;margin:0 0 10px;font-family:var(--font-display);font-weight:800;letter-spacing:-.02em}
+    #individualEtp .etp-hero p{margin:0;max-width:660px;opacity:.94;font-size:15px;line-height:1.55}
+    .etp-chain{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .etp-chip{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.32);padding:10px 14px;border-radius:11px;font-weight:800;font-size:13px;backdrop-filter:blur(6px)}
+    .etp-arrow{opacity:.8;font-size:16px}
+
+    .etp-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:24px}
+    .etp-kpi{position:relative;overflow:hidden;background:linear-gradient(165deg,#fff,#f4faf9);border:1px solid var(--border);border-left:5px solid var(--primary);border-radius:16px;padding:18px;box-shadow:var(--sh-sm);transition:transform .2s,box-shadow .2s}
+    .etp-kpi:hover{transform:translateY(-4px);box-shadow:var(--sh)}
+    .etp-kpi .l{font-size:12px;color:var(--muted);font-weight:700;line-height:1.35;text-transform:uppercase;letter-spacing:.04em}
+    .etp-kpi .v{font-size:34px;font-weight:800;margin-top:10px;color:var(--primary);font-family:var(--font-display);font-feature-settings:"tnum"}
+    .etp-kpi .s{font-size:11.5px;color:var(--muted);margin-top:6px}
+
+    .etp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+    .ind-card{position:relative;background:#fff;border:1px solid var(--border);border-top:5px solid #16a34a;border-radius:18px;padding:18px;cursor:pointer;transition:transform .18s cubic-bezier(.22,.8,.2,1),box-shadow .18s;box-shadow:var(--sh-sm)}
+    .ind-card:hover{box-shadow:var(--sh-lg);transform:translateY(-5px)}
+    .ind-card.green{border-top-color:#16a34a}
+    .ind-card.yellow{border-top-color:#f59e0b}
+    .ind-card.red{border-top-color:#dc2626}
+    .ic-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:14px}
+    .ic-name{font-weight:800;font-size:16.5px;font-family:var(--font-display);letter-spacing:-.01em}
+    .ic-code{font-size:12px;color:var(--muted);margin-top:3px;font-weight:600}
+    .ic-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+    .ic-m{background:linear-gradient(160deg,#f5faf9,#eef6f5);border:1px solid #e7f0ee;border-radius:12px;padding:10px 12px}
+    .ic-m span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;font-weight:700}
+    .ic-m b{font-size:17px;font-family:var(--font-display)}
+    .ic-bar-label{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:#475569;margin:10px 0 5px}
+    .bar{height:10px;background:#e8eef0;border-radius:8px;overflow:hidden}
+    .bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--secondary));border-radius:8px;transition:width .6s ease}
+    .ic-foot{margin-top:14px;font-size:12.5px;font-weight:700;color:#475569;padding-top:12px;border-top:1px dashed #e3ebe9}
+
+    .etp-section-head{font-size:22px;margin:28px 0 14px;font-family:var(--font-display);font-weight:800;color:#11393b}
+    .alert-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .alert-card{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid var(--border);border-left:6px solid #dc2626;border-radius:16px;padding:16px 18px;box-shadow:var(--sh-sm);transition:transform .15s,box-shadow .15s}
+    .alert-card:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+    .alert-card.high{border-left-color:#dc2626}
+    .alert-card.med{border-left-color:#f59e0b}
+    .alert-card.low{border-left-color:#2563eb}
+    .ac-ic{font-size:24px;line-height:1}
+    .ac-t{font-weight:800;font-size:15px;font-family:var(--font-display)}
+    .ac-d{font-size:13px;color:#475569;margin-top:4px}
+    .ac-m{font-size:12px;color:var(--muted);margin-top:6px;font-weight:700}
+
+    .etp-analytics{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .etp-chartbox{position:relative;height:280px}
+
+    /* detail view */
+    .meter-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .meter-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:0;overflow:hidden;box-shadow:var(--sh-sm)}
+    .meter-card .mn{font-weight:800;font-size:13px;color:#fff;background:linear-gradient(135deg,var(--primary),#0b8a93);padding:11px 14px;margin:0;font-family:var(--font-display)}
+    .mrow{display:flex;justify-content:space-between;font-size:12.5px;padding:7px 14px;color:#475569}
+    .mrow b{color:#17202a;font-family:var(--font-display)}
+    .meter-card .ic-bar-label{padding:0 14px}
+    .meter-card .bar{margin:2px 14px 14px}
+
+    .proc{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding:10px 4px 14px}
+    .proc-wrap{display:flex;align-items:center}
+    .proc-stage{min-width:165px;background:linear-gradient(165deg,#f3fbfa,#e8f5f3);border:1px solid #cfe9e6;border-radius:14px;padding:14px 12px;text-align:center;position:relative;box-shadow:var(--sh-sm)}
+    .proc-stage.warn{background:linear-gradient(165deg,#fff7ed,#ffedd5);border-color:#fed7aa}
+    .proc-stage.off{background:#f1f5f9;border-color:#e2e8f0;opacity:.7}
+    .ps-name{font-weight:800;font-size:12.5px;color:var(--primary-dark);min-height:34px;font-family:var(--font-display)}
+    .ps-flow{font-size:20px;font-weight:800;color:var(--primary);margin-top:8px;font-family:var(--font-display)}
+    .ps-meter{font-size:11px;color:var(--muted);margin-top:4px}
+    .ps-dot{width:11px;height:11px;border-radius:50%;background:#16a34a;margin:10px auto 0;box-shadow:0 0 0 4px rgba(22,163,74,.15)}
+    .ps-dot.warn{background:#f59e0b;box-shadow:0 0 0 4px rgba(245,158,11,.15)}.ps-dot.off{background:#94a3b8;box-shadow:none}
+    .proc-arrow{display:flex;align-items:center;justify-content:center;min-width:46px;color:var(--secondary);font-size:20px;font-weight:800}
+    @keyframes etpflow{0%{transform:translateX(-6px);opacity:.2}50%{opacity:1}100%{transform:translateX(6px);opacity:.2}}
+    .flow-dot{width:9px;height:9px;border-radius:50%;background:var(--secondary);display:inline-block;margin-right:3px;animation:etpflow 1.2s infinite;box-shadow:0 0 8px rgba(14,165,168,.7)}
+
+    .gauge-row{display:flex;gap:22px;flex-wrap:wrap;justify-content:space-around}
+    .gauge-card{text-align:center}
+    .gauge{width:128px;height:128px;border-radius:50%;display:grid;place-items:center;box-shadow:0 10px 24px -10px rgba(2,72,81,.3)}
+    .gauge-hole{width:92px;height:92px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:22px;font-weight:800;font-family:var(--font-display);box-shadow:inset 0 0 0 1px #eef2f2}
+    .gauge-label{margin-top:12px;font-size:13px;font-weight:700;color:#475569;max-width:140px}
+
+    @media(max-width:1050px){
+      .etp-kpis{grid-template-columns:repeat(3,1fr)}
+      .etp-analytics{grid-template-columns:1fr}
+      .alert-grid{grid-template-columns:1fr}
+      .meter-grid{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(max-width:640px){
+      .etp-kpis{grid-template-columns:repeat(2,1fr)}
+      .meter-grid{grid-template-columns:1fr}
+      .ic-metrics{grid-template-columns:1fr 1fr}
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login">
+    <h1>RSPCB Digital Log Book</h1>
+    <p>Textile Wastewater Meter Reading Monitoring Application</p>
+    <div class="notice">
+      Demo Login: Select any role and click login. This is a running HTML prototype with local data storage.
+    </div>
+    <label>User Role</label>
+    <select id="loginRole">
+      <option>Super Admin</option>
+      <option>Monitoring Body Admin</option>
+      <option>Industry Owner</option>
+      <option>Industry Operator</option>
+      <option>Field Inspector</option>
+      <option>Report Viewer</option>
+    </select>
+    <div style="height:12px"></div>
+    <label>Name</label>
+    <input id="loginName" value="Demo User" />
+    <button class="btn" style="width:100%;margin-top:16px" onclick="login()">Login</button>
+    <div style="text-align:center;margin-top:14px">
+      <a href="index.html" style="color:var(--muted);font-size:13px;text-decoration:none">← Back to intro</a>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="brand">
+      <h1>RSPCB Textile Wastewater Digital Log Book</h1>
+      <p>8 AM &amp; 8 PM meter reading system for Inlet, ETP, RO and MEE monitoring</p>
+    </div>
+    <div class="userbox">
+      <span class="pill" id="currentUser">Demo User</span>
+      <span class="pill" id="currentRole">Super Admin</span>
+      <button class="btn secondary small" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <button class="navbtn active" onclick="showSection('dashboard',this)">📊 Dashboard</button>
+      <button class="navbtn" onclick="showSection('individualEtp',this);renderEtpSection()">🏭 Individual ETP's</button>
+      <button class="navbtn" onclick="showSection('entry',this)">📝 Submit Reading</button>
+      <button class="navbtn" onclick="showSection('approvals',this)">✅ Approval</button>
+      <button class="navbtn" onclick="showSection('reports',this)">📄 Reports</button>
+      <button class="navbtn" onclick="showSection('industries',this)">🏭 Industries</button>
+      <button class="navbtn" onclick="showSection('settings',this)">⚙️ Rules</button>
+    </aside>
+
+    <main class="main">
+      <section id="dashboard" class="section active">
+        <div class="toolbar">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <h2 style="margin:0">Monitoring Body Dashboard</h2>
+            <select id="dashCetp" onchange="renderDashboard()" style="width:auto;min-width:170px">
+              <option>CETP Balotra</option>
+              <option>CETP Jasol</option>
+              <option>CETP Bithuja</option>
+            </select>
+          </div>
+          <div class="btnrow" style="margin-top:0">
+            <button class="btn secondary" onclick="seedDemoData()">Add Demo Entries</button>
+            <button class="btn warning" onclick="resetAllData()">Reset Data</button>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card"><div class="stat-label">Registered Industries</div><div class="stat-value" id="statIndustries">0</div><div class="stat-small">Textile units</div></div>
+          <div class="card"><div class="stat-label">Today Submitted</div><div class="stat-value" id="statSubmitted">0</div><div class="stat-small">8 AM + 8 PM logs</div></div>
+          <div class="card"><div class="stat-label">Pending Approval</div><div class="stat-value" id="statPending">0</div><div class="stat-small">Needs verification</div></div>
+          <div class="card"><div class="stat-label">Late / Alerts</div><div class="stat-value" id="statAlerts">0</div><div class="stat-small">Late, zero, high, mismatch</div></div>
+        </div>
+
+        <div class="card">
+          <h3>Industry-wise Today Summary</h3>
+          <div style="overflow:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Industry</th>
+                  <th>Permitted KLD</th>
+                  <th>Today Total Flow</th>
+                  <th>Pending</th>
+                  <th>Late</th>
+                  <th>Rejected</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="dashboardIndustryRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="individualEtp" class="section">
+        <div id="etpListView">
+          <div class="etp-hero">
+            <div>
+              <h1>Individual ETP Monitoring</h1>
+              <p>Real-time monitoring of Effluent Treatment Plants operated by textile industries across the Balotra textile region. Every textile industry is responsible for treating its wastewater before discharge or transfer to CETP.</p>
+            </div>
+            <div class="etp-chain">
+              <span class="etp-chip">Textile Industry</span><span class="etp-arrow">→</span>
+              <span class="etp-chip">ETP</span><span class="etp-arrow">→</span>
+              <span class="etp-chip">RO</span><span class="etp-arrow">→</span>
+              <span class="etp-chip">MEE</span><span class="etp-arrow">→</span>
+              <span class="etp-chip">Treated Water</span>
+            </div>
+          </div>
+
+          <div class="etp-kpis" id="etpKpis"></div>
+
+          <div class="toolbar">
+            <h3 style="margin:0">Monitored Industries</h3>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <select id="etpStatusFilter" onchange="renderEtpGrid()" style="width:auto">
+                <option value="">All Status</option>
+                <option value="green">Compliant</option>
+                <option value="yellow">Attention Required</option>
+                <option value="red">Non-Compliant</option>
+              </select>
+              <input id="etpSearch" oninput="renderEtpGrid()" placeholder="Search industry / code..." style="width:auto;min-width:200px" />
+            </div>
+          </div>
+          <div class="etp-grid" id="etpGrid"></div>
+
+          <h3 class="etp-section-head">Alerts Panel</h3>
+          <div class="alert-grid" id="etpAlerts"></div>
+
+          <h3 class="etp-section-head">Environmental Analytics</h3>
+          <div class="etp-analytics">
+            <div class="card"><h3>Wastewater Trend — Last 14 Days</h3><div class="etp-chartbox"><canvas id="etpTrend"></canvas></div></div>
+            <div class="card"><h3>Industry Comparison — Daily Wastewater</h3><div class="etp-chartbox"><canvas id="etpCompare"></canvas></div></div>
+            <div class="card"><h3>Top Water Consumers</h3><div class="etp-chartbox"><canvas id="etpTop"></canvas></div></div>
+            <div class="card"><h3>Compliance Ranking</h3><div class="etp-chartbox"><canvas id="etpRank"></canvas></div></div>
+          </div>
+        </div>
+
+        <div id="etpDetailView" style="display:none"></div>
+      </section>
+
+      <section id="entry" class="section">
+        <div class="toolbar">
+          <h2>Submit 12-Hour Meter Reading</h2>
+        </div>
+        <div class="notice">
+          Reading timing: Morning 8:00 AM and Evening 8:00 PM. Late entry is allowed but will be marked as Late Entry.
+        </div>
+        <div class="card">
+          <form id="readingForm" onsubmit="submitReading(event)">
+            <div class="form-grid">
+              <div>
+                <label>Industry</label>
+                <select id="entryIndustry" required onchange="refreshPreviousReading()"></select>
+              </div>
+              <div>
+                <label>Date</label>
+                <input type="date" id="entryDate" required onchange="refreshPreviousReading()" />
+              </div>
+              <div>
+                <label>Reading Time</label>
+                <select id="entrySlot" required onchange="refreshPreviousReading()">
+                  <option value="8 AM">8 AM</option>
+                  <option value="8 PM">8 PM</option>
+                </select>
+              </div>
+              <div>
+                <label>Meter Point</label>
+                <select id="entryMeter" required onchange="refreshPreviousReading()"></select>
+              </div>
+              <div>
+                <label>Previous Meter Reading</label>
+                <input type="number" id="previousReading" readonly />
+              </div>
+              <div>
+                <label>Current Meter Reading</label>
+                <input type="number" id="currentReading" step="0.01" min="0" required oninput="calculateFlow()" />
+              </div>
+              <div>
+                <label>Difference / Actual Flow</label>
+                <input type="number" id="flowDiff" readonly />
+              </div>
+              <div>
+                <label>Unit</label>
+                <select id="entryUnit">
+                  <option>KL</option>
+                  <option>KLD</option>
+                  <option>m³</option>
+                </select>
+              </div>
+              <div>
+                <label>Meter Photo Upload</label>
+                <input type="file" id="meterPhoto" accept="image/*" required />
+              </div>
+              <div>
+                <label>Operator Signature / Name</label>
+                <input id="operatorSign" required placeholder="Enter operator name" />
+              </div>
+              <div>
+                <label>Inspector Signature / Name</label>
+                <input id="inspectorSign" required placeholder="Enter inspector name" />
+              </div>
+              <div>
+                <label>Remarks</label>
+                <input id="entryRemarks" placeholder="Optional remarks" />
+              </div>
+              <div class="full">
+                <label>System Alerts</label>
+                <textarea id="entryAlerts" rows="2" readonly></textarea>
+              </div>
+            </div>
+            <div class="btnrow">
+              <button class="btn" type="submit">Submit Reading</button>
+              <button class="btn secondary" type="reset" onclick="setTimeout(refreshPreviousReading,100)">Clear</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="approvals" class="section">
+        <div class="toolbar">
+          <h2>Reading Approval / Verification</h2>
+          <button class="btn secondary" onclick="renderApprovals()">Refresh</button>
+        </div>
+        <div class="card">
+          <div style="overflow:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Slot</th>
+                  <th>Industry</th>
+                  <th>Meter</th>
+                  <th>Previous</th>
+                  <th>Current</th>
+                  <th>Flow</th>
+                  <th>Alerts</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="approvalRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="reports" class="section">
+        <div class="toolbar">
+          <h2>Reports</h2>
+          <div class="btnrow" style="margin-top:0">
+            <button class="btn info" onclick="downloadCSV()">Download Excel/CSV</button>
+            <button class="btn secondary" onclick="window.print()">Print / Save PDF</button>
+          </div>
+        </div>
+        <div class="card no-print">
+          <div class="searchline">
+            <div>
+              <label>Industry Filter</label>
+              <select id="reportIndustry" onchange="renderReports()"></select>
+            </div>
+            <div>
+              <label>From Date</label>
+              <input type="date" id="reportFrom" onchange="renderReports()" />
+            </div>
+            <div>
+              <label>To Date</label>
+              <input type="date" id="reportTo" onchange="renderReports()" />
+            </div>
+            <div>
+              <label>Status</label>
+              <select id="reportStatus" onchange="renderReports()">
+                <option value="">All</option>
+                <option>Pending</option>
+                <option>Approved</option>
+                <option>Rejected</option>
+                <option>Late Entry</option>
+              </select>
+            </div>
+            <button class="btn secondary" onclick="clearReportFilters()">Clear</button>
+          </div>
+        </div>
+
+        <div class="print-title">
+          <h2>Textile Wastewater Meter Reading Report</h2>
+          <p>Generated from RSPCB Digital Log Book Application</p>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi"><span class="mini">Total Entries</span><br><b id="repTotal">0</b></div>
+          <div class="kpi"><span class="mini">Approved</span><br><b id="repApproved">0</b></div>
+          <div class="kpi"><span class="mini">Pending</span><br><b id="repPending">0</b></div>
+          <div class="kpi"><span class="mini">Rejected</span><br><b id="repRejected">0</b></div>
+          <div class="kpi"><span class="mini">Total Flow</span><br><b id="repFlow">0</b></div>
+        </div>
+
+        <div class="card">
+          <h3>Reading Log Book</h3>
+          <div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Slot</th>
+                  <th>Industry</th>
+                  <th>Meter Point</th>
+                  <th>Previous</th>
+                  <th>Current</th>
+                  <th>Flow</th>
+                  <th>Unit</th>
+                  <th>Photo</th>
+                  <th>Operator</th>
+                  <th>Status</th>
+                  <th class="no-print">Details</th>
+                </tr>
+              </thead>
+              <tbody id="reportRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="industries" class="section">
+        <div class="toolbar">
+          <h2>Industry Master</h2>
+          <button class="btn" onclick="openIndustryModal()">Add Industry</button>
+        </div>
+        <div class="card">
+          <div style="overflow:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Industry</th>
+                  <th>Owner</th>
+                  <th>Mobile</th>
+                  <th>Consent No.</th>
+                  <th>Permitted KLD</th>
+                  <th>ETP</th>
+                  <th>RO</th>
+                  <th>MEE</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="industryRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="settings" class="section">
+        <div class="toolbar"><h2>Application Rules</h2></div>
+        <div class="card">
+          <h3>Final Rules Confirmed</h3>
+          <table>
+            <tbody>
+              <tr><th>Industry Type</th><td>Only Textile Industries</td></tr>
+              <tr><th>Reading Timing</th><td>Every 12 hours: 8 AM and 8 PM</td></tr>
+              <tr><th>Late Entry</th><td>Allowed and marked as Late Entry</td></tr>
+              <tr><th>Meter Points</th><td>All points: Inlet, ETP, RO Feed, RO Permeate, RO Reject, MEE Feed, MEE Condensate, Final Evaporation</td></tr>
+              <tr><th>Proof</th><td>Meter photo, auto date-time, operator signature, inspector signature. GPS not required.</td></tr>
+              <tr><th>Approval</th><td>Monitoring body can approve or reject with reason.</td></tr>
+              <tr><th>Reports</th><td>Daily, date-wise, industry-wise, monthly, pending, approved, rejected, late, capacity exceeded, non-reporting.</td></tr>
+              <tr><th>Export</th><td>CSV for Excel and Print/Save as PDF.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="modal" id="industryModal">
+  <div class="modal-content">
+    <div class="toolbar">
+      <h2 id="industryModalTitle">Add Industry</h2>
+      <button class="btn secondary small" onclick="closeIndustryModal()">Close</button>
+    </div>
+    <form id="industryForm" onsubmit="saveIndustry(event)">
+      <input type="hidden" id="industryId" />
+      <div class="form-grid two">
+        <div><label>Industry Name</label><input id="indName" required /></div>
+        <div><label>Owner Name</label><input id="indOwner" required /></div>
+        <div><label>Contact Person</label><input id="indContact" /></div>
+        <div><label>Mobile Number</label><input id="indMobile" required /></div>
+        <div><label>Email ID</label><input id="indEmail" type="email" /></div>
+        <div><label>Consent / License Number</label><input id="indConsent" required /></div>
+        <div><label>CETP</label><select id="indCetp"><option>CETP Balotra</option><option>CETP Jasol</option><option>CETP Bithuja</option></select></div>
+        <div><label>Permitted KLD</label><input id="indKld" type="number" min="0" required /></div>
+        <div><label>ETP Capacity</label><input id="indEtp" type="number" min="0" required /></div>
+        <div><label>RO Capacity</label><input id="indRo" type="number" min="0" required /></div>
+        <div><label>MEE Capacity</label><input id="indMee" type="number" min="0" required /></div>
+        <div class="full"><label>Address</label><textarea id="indAddress" rows="2"></textarea></div>
+        <div><label>Status</label><select id="indStatus"><option>Active</option><option>Inactive</option></select></div>
+      </div>
+      <div class="btnrow">
+        <button class="btn" type="submit">Save Industry</button>
+        <button class="btn secondary" type="button" onclick="closeIndustryModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="rejectModal">
+  <div class="modal-content">
+    <h2>Reject Reading</h2>
+    <p class="mini">Please enter rejection reason. This will be visible in reports.</p>
+    <input type="hidden" id="rejectId" />
+    <label>Reason</label>
+    <textarea id="rejectReason" rows="3" required></textarea>
+    <div class="btnrow">
+      <button class="btn danger" onclick="confirmReject()">Reject</button>
+      <button class="btn secondary" onclick="closeRejectModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="readingDetailModal">
+  <div class="modal-content">
+    <div class="toolbar">
+      <h2 id="readingDetailTitle">Reading Details</h2>
+      <button class="btn secondary small" onclick="closeReadingDetail()">Close</button>
+    </div>
+    <div id="readingDetailBody"></div>
+    <div class="btnrow">
+      <button class="btn secondary" onclick="closeReadingDetail()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const meterPoints = [
+  "Inlet Flow Meter",
+  "ETP Inlet Meter",
+  "ETP Outlet Meter",
+  "RO Feed Meter",
+  "RO Permeate Meter",
+  "RO Reject Meter",
+  "MEE Feed Meter",
+  "MEE Condensate Meter",
+  "MEE Evaporation / Final Meter",
+  "Sludge / Waste Record"
+];
+
+const CETP_LIST = ["CETP Balotra","CETP Jasol","CETP Bithuja"];
+
+const sampleIndustries = [
+  {id:uid(),name:"Shree Textile Processors",owner:"Rajesh Sharma",contact:"Plant Manager",mobile:"9876543210",email:"info@shreetextile.com",address:"Industrial Area, Unit 1",consent:"CTO/TEX/001",cetp:"CETP Balotra",kld:100,etp:120,ro:80,mee:50,status:"Active"},
+  {id:uid(),name:"Mewar Dyeing Mills",owner:"Mahendra Jain",contact:"Operator Head",mobile:"9876501234",email:"admin@mewardyeing.com",address:"Textile Park, Unit 5",consent:"CTO/TEX/002",cetp:"CETP Jasol",kld:150,etp:160,ro:100,mee:70,status:"Active"},
+  {id:uid(),name:"Aravali Fabrics Pvt Ltd",owner:"Kunal Mehta",contact:"Compliance Officer",mobile:"9876511111",email:"compliance@aravalifabrics.com",address:"RIICO Area",consent:"CTO/TEX/003",cetp:"CETP Bithuja",kld:80,etp:90,ro:60,mee:40,status:"Active"},
+  {id:uid(),name:"Nakoda Textile Mills",owner:"Suresh Jain",contact:"Plant Head",mobile:"9828012345",email:"contact@nakodatextile.com",address:"Balotra Industrial Area, Unit 12",consent:"CTO/TEX/004",cetp:"CETP Balotra",kld:120,etp:140,ro:90,mee:60,status:"Active"},
+  {id:uid(),name:"Marwar Synthetics",owner:"Dinesh Bothra",contact:"Manager",mobile:"9828023456",email:"info@marwarsynthetics.com",address:"RIICO Phase 2",consent:"CTO/TEX/005",cetp:"CETP Jasol",kld:90,etp:100,ro:70,mee:45,status:"Active"},
+  {id:uid(),name:"Balaji Processing House",owner:"Ramesh Agarwal",contact:"Operator Head",mobile:"9828034567",email:"admin@balajiprocessing.com",address:"Jasol Road, Unit 8",consent:"CTO/TEX/006",cetp:"CETP Bithuja",kld:160,etp:180,ro:120,mee:80,status:"Active"},
+  {id:uid(),name:"Shree Ram Dyeing",owner:"Mohan Lal",contact:"Compliance Officer",mobile:"9828045678",email:"info@shreeramdyeing.com",address:"Industrial Area, Unit 21",consent:"CTO/TEX/007",cetp:"CETP Balotra",kld:110,etp:130,ro:85,mee:55,status:"Active"},
+  {id:uid(),name:"Ganpati Textile Works",owner:"Vijay Surana",contact:"Plant Manager",mobile:"9828056789",email:"contact@ganpatitextile.com",address:"RIICO Phase 1",consent:"CTO/TEX/008",cetp:"CETP Jasol",kld:75,etp:85,ro:55,mee:35,status:"Active"},
+  {id:uid(),name:"Mahalaxmi Fabrics",owner:"Sunil Khandelwal",contact:"Manager",mobile:"9828067890",email:"info@mahalaxmifabrics.com",address:"Bithuja Industrial Estate",consent:"CTO/TEX/009",cetp:"CETP Bithuja",kld:140,etp:160,ro:100,mee:70,status:"Active"},
+  {id:uid(),name:"Rajputana Dyeing Mills",owner:"Anil Rathore",contact:"Operator Head",mobile:"9828078901",email:"admin@rajputanadyeing.com",address:"Balotra Textile Park",consent:"CTO/TEX/010",cetp:"CETP Balotra",kld:200,etp:220,ro:150,mee:100,status:"Active"},
+  {id:uid(),name:"Suncity Synthetics",owner:"Prakash Goyal",contact:"Compliance Officer",mobile:"9828089012",email:"info@suncitysynthetics.com",address:"RIICO Phase 3",consent:"CTO/TEX/011",cetp:"CETP Jasol",kld:95,etp:110,ro:70,mee:50,status:"Active"},
+  {id:uid(),name:"Vardhman Processing Unit",owner:"Naresh Bansal",contact:"Plant Head",mobile:"9828090123",email:"contact@vardhmanprocessing.com",address:"Jasol Industrial Area",consent:"CTO/TEX/012",cetp:"CETP Bithuja",kld:130,etp:150,ro:95,mee:65,status:"Active"},
+  {id:uid(),name:"Padmavati Textile Mills",owner:"Sanjay Jain",contact:"Manager",mobile:"9828101234",email:"info@padmavatitextile.com",address:"Balotra Industrial Area, Unit 30",consent:"CTO/TEX/013",cetp:"CETP Balotra",kld:85,etp:95,ro:60,mee:40,status:"Active"},
+  {id:uid(),name:"Navkar Dyeing Works",owner:"Manish Mehta",contact:"Operator Head",mobile:"9828112345",email:"admin@navkardyeing.com",address:"RIICO Phase 2, Unit 15",consent:"CTO/TEX/014",cetp:"CETP Jasol",kld:105,etp:120,ro:80,mee:55,status:"Active"},
+  {id:uid(),name:"Chamunda Fabrics",owner:"Deepak Sharma",contact:"Compliance Officer",mobile:"9828123456",email:"info@chamundafabrics.com",address:"Bithuja Industrial Estate, Unit 7",consent:"CTO/TEX/015",cetp:"CETP Bithuja",kld:115,etp:135,ro:88,mee:58,status:"Active"},
+  {id:uid(),name:"Saraswati Synthetics",owner:"Rakesh Bhandari",contact:"Plant Manager",mobile:"9828134567",email:"contact@saraswatisynthetics.com",address:"Balotra Textile Park, Unit 4",consent:"CTO/TEX/016",cetp:"CETP Balotra",kld:170,etp:190,ro:130,mee:85,status:"Active"},
+  {id:uid(),name:"Om Shanti Processing",owner:"Lalit Kothari",contact:"Manager",mobile:"9828145678",email:"info@omshantiprocessing.com",address:"RIICO Phase 1, Unit 9",consent:"CTO/TEX/017",cetp:"CETP Jasol",kld:60,etp:70,ro:45,mee:30,status:"Inactive"},
+  {id:uid(),name:"Thar Textile Industries",owner:"Gaurav Maru",contact:"Operator Head",mobile:"9828156789",email:"admin@thartextile.com",address:"Jasol Road, Unit 18",consent:"CTO/TEX/018",cetp:"CETP Bithuja",kld:125,etp:145,ro:92,mee:62,status:"Active"}
+];
+
+let industries = JSON.parse(localStorage.getItem("wm_industries") || "null") || sampleIndustries;
+let readings = JSON.parse(localStorage.getItem("wm_readings") || "[]");
+let session = JSON.parse(localStorage.getItem("wm_session") || "null");
+
+// Merge any new sample industries into saved data + ensure every industry has a CETP
+(function(){
+  let changed = false;
+  const existing = new Set(industries.map(i=>i.consent));
+  sampleIndustries.forEach(s=>{ if(!existing.has(s.consent)){ industries.push(Object.assign({}, s, {id:uid()})); changed = true; } });
+  industries.forEach((ind,i)=>{ if(!ind.cetp){ ind.cetp = CETP_LIST[i % CETP_LIST.length]; changed = true; } });
+  if(changed) localStorage.setItem("wm_industries", JSON.stringify(industries));
+})();
+
+function uid(){ return "id_" + Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function nowTime(){ return new Date().toLocaleString(); }
+function saveAll(){
+  localStorage.setItem("wm_industries", JSON.stringify(industries));
+  localStorage.setItem("wm_readings", JSON.stringify(readings));
+}
+function statusBadge(status){
+  let cls = "pending";
+  if(status === "Approved") cls = "approved";
+  if(status === "Rejected") cls = "rejected";
+  if(status === "Late Entry") cls = "late";
+  if(status === "Corrected Entry") cls = "corrected";
+  return `<span class="badge ${cls}">${status}</span>`;
+}
+function activeBadge(status){
+  return `<span class="badge ${status === "Active" ? "active" : "inactive"}">${status}</span>`;
+}
+function industryName(id){
+  const ind = industries.find(x=>x.id===id);
+  return ind ? ind.name : "Deleted Industry";
+}
+function getIndustry(id){ return industries.find(x=>x.id===id); }
+
+function login(){
+  session = {name:document.getElementById("loginName").value || "Demo User", role:document.getElementById("loginRole").value};
+  localStorage.setItem("wm_session", JSON.stringify(session));
+  initApp();
+}
+function logout(){
+  localStorage.removeItem("wm_session");
+  location.reload();
+}
+function initApp(){
+  if(session){
+    document.getElementById("loginScreen").classList.add("hide");
+    document.getElementById("app").classList.add("show");
+    document.getElementById("currentUser").textContent = session.name;
+    document.getElementById("currentRole").textContent = session.role;
+  }
+  document.getElementById("entryDate").value = today();
+  populateMeters();
+  populateIndustrySelects();
+  renderAll();
+}
+function showSection(id,btn){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  renderAll();
+}
+function populateMeters(){
+  const sel = document.getElementById("entryMeter");
+  sel.innerHTML = meterPoints.map(m=>`<option>${m}</option>`).join("");
+}
+function populateIndustrySelects(){
+  const activeIndustries = industries.filter(i=>i.status==="Active");
+  const opts = activeIndustries.map(i=>`<option value="${i.id}">${i.name}</option>`).join("");
+  document.getElementById("entryIndustry").innerHTML = opts;
+  document.getElementById("reportIndustry").innerHTML = `<option value="">All Industries</option>` + industries.map(i=>`<option value="${i.id}">${i.name}</option>`).join("");
+  refreshPreviousReading();
+}
+function getPreviousReading(industryId,meter){
+  const list = readings
+    .filter(r=>r.industryId===industryId && r.meterPoint===meter)
+    .sort((a,b)=>(a.date+a.slot+a.createdAt).localeCompare(b.date+b.slot+b.createdAt));
+  if(list.length===0) return 0;
+  return Number(list[list.length-1].currentReading || 0);
+}
+function refreshPreviousReading(){
+  const industryId = document.getElementById("entryIndustry").value;
+  const meter = document.getElementById("entryMeter").value;
+  const prev = getPreviousReading(industryId,meter);
+  document.getElementById("previousReading").value = prev;
+  calculateFlow();
+}
+function calculateFlow(){
+  const prev = Number(document.getElementById("previousReading").value || 0);
+  const curr = Number(document.getElementById("currentReading").value || 0);
+  const diff = curr - prev;
+  document.getElementById("flowDiff").value = diff >= 0 ? diff.toFixed(2) : diff.toFixed(2);
+  const alerts = [];
+  if(curr < prev) alerts.push("Current reading is less than previous reading");
+  if(diff === 0 && curr > 0) alerts.push("Zero flow / same reading repeated");
+  if(diff > 500) alerts.push("Abnormal high difference");
+  const industry = getIndustry(document.getElementById("entryIndustry").value);
+  if(industry && diff > Number(industry.kld)) alerts.push("Capacity crossed as per permitted KLD");
+  document.getElementById("entryAlerts").value = alerts.join(", ");
+}
+function isLate(slot){
+  const n = new Date();
+  const currentHour = n.getHours();
+  if(document.getElementById("entryDate").value !== today()) return true;
+  if(slot === "8 AM" && currentHour > 10) return true;
+  if(slot === "8 PM" && currentHour > 22) return true;
+  return false;
+}
+function duplicateCheck(industryId,date,slot,meterPoint){
+  return readings.some(r=>r.industryId===industryId && r.date===date && r.slot===slot && r.meterPoint===meterPoint && r.status !== "Rejected");
+}
+function submitReading(e){
+  e.preventDefault();
+  const industryId = document.getElementById("entryIndustry").value;
+  const date = document.getElementById("entryDate").value;
+  const slot = document.getElementById("entrySlot").value;
+  const meterPoint = document.getElementById("entryMeter").value;
+  const prev = Number(document.getElementById("previousReading").value || 0);
+  const curr = Number(document.getElementById("currentReading").value || 0);
+  const diff = curr - prev;
+  if(curr < prev){
+    alert("Current reading cannot be less than previous reading.");
+    return;
+  }
+  if(duplicateCheck(industryId,date,slot,meterPoint)){
+    if(!confirm("Reading for this industry, date, slot and meter point already exists. Submit as corrected entry?")) return;
+  }
+  const fileInput = document.getElementById("meterPhoto");
+  const fileName = fileInput.files.length ? fileInput.files[0].name : "";
+  if(!fileName){
+    alert("Meter photo is mandatory.");
+    return;
+  }
+  const alerts = document.getElementById("entryAlerts").value;
+  let status = isLate(slot) ? "Late Entry" : "Pending";
+  if(duplicateCheck(industryId,date,slot,meterPoint)) status = "Corrected Entry";
+  readings.push({
+    id:uid(), industryId, date, slot, meterPoint,
+    previousReading:prev, currentReading:curr, flow:diff,
+    unit:document.getElementById("entryUnit").value,
+    photo:fileName,
+    operator:document.getElementById("operatorSign").value,
+    inspector:document.getElementById("inspectorSign").value,
+    remarks:document.getElementById("entryRemarks").value,
+    alerts, status,
+    rejectionReason:"",
+    submittedBy: session ? session.name : "Demo User",
+    createdAt: nowTime()
+  });
+  saveAll();
+  alert("Reading submitted successfully.");
+  document.getElementById("readingForm").reset();
+  document.getElementById("entryDate").value = today();
+  populateIndustrySelects();
+  renderAll();
+}
+function renderDashboard(){
+  const t = today();
+  const dashCetpEl = document.getElementById("dashCetp");
+  const selCetp = dashCetpEl ? dashCetpEl.value : CETP_LIST[0];
+  const cetpIndustries = industries.filter(i=>i.cetp===selCetp);
+  const cetpIds = cetpIndustries.map(i=>i.id);
+  const active = cetpIndustries.filter(i=>i.status==="Active");
+  const cetpReadings = readings.filter(r=>cetpIds.includes(r.industryId));
+  const todayRows = cetpReadings.filter(r=>r.date===t);
+  document.getElementById("statIndustries").textContent = cetpIndustries.length;
+  document.getElementById("statSubmitted").textContent = todayRows.length;
+  document.getElementById("statPending").textContent = cetpReadings.filter(r=>["Pending","Late Entry","Corrected Entry"].includes(r.status)).length;
+  document.getElementById("statAlerts").textContent = cetpReadings.filter(r=>r.alerts || r.status==="Late Entry").length;
+  document.getElementById("dashboardIndustryRows").innerHTML = active.map(ind=>{
+    const rows = todayRows.filter(r=>r.industryId===ind.id);
+    const total = rows.reduce((s,r)=>s+Number(r.flow||0),0);
+    const pending = rows.filter(r=>["Pending","Late Entry","Corrected Entry"].includes(r.status)).length;
+    const late = rows.filter(r=>r.status==="Late Entry").length;
+    const rejected = rows.filter(r=>r.status==="Rejected").length;
+    let status = "OK";
+    if(total > Number(ind.kld)) status = "Capacity Crossed";
+    if(rows.length === 0) status = "No Reading";
+    return `<tr>
+      <td><b>${ind.name}</b><div class="mini">${ind.consent}</div></td>
+      <td>${ind.kld} KLD</td>
+      <td>${total.toFixed(2)}</td>
+      <td>${pending}</td>
+      <td>${late}</td>
+      <td>${rejected}</td>
+      <td>${status}</td>
+    </tr>`;
+  }).join("");
+}
+function renderApprovals(){
+  const pendingRows = readings.slice().reverse();
+  document.getElementById("approvalRows").innerHTML = pendingRows.map(r=>`
+    <tr>
+      <td>${r.date}</td>
+      <td>${r.slot}</td>
+      <td>${industryName(r.industryId)}</td>
+      <td>${r.meterPoint}</td>
+      <td>${r.previousReading}</td>
+      <td>${r.currentReading}</td>
+      <td>${Number(r.flow).toFixed(2)} ${r.unit}</td>
+      <td>${r.alerts || "-"}</td>
+      <td>${statusBadge(r.status)}</td>
+      <td>
+        ${r.status !== "Approved" ? `<button class="btn success small" onclick="approveReading('${r.id}')">Approve</button>` : ""}
+        ${r.status !== "Rejected" ? `<button class="btn danger small" onclick="openRejectModal('${r.id}')">Reject</button>` : ""}
+      </td>
+    </tr>
+  `).join("");
+}
+function approveReading(id){
+  const r = readings.find(x=>x.id===id);
+  if(!r) return;
+  r.status = "Approved";
+  r.verifiedAt = nowTime();
+  r.verifiedBy = session ? session.name : "Verifier";
+  saveAll();
+  renderAll();
+}
+function openRejectModal(id){
+  document.getElementById("rejectId").value = id;
+  document.getElementById("rejectReason").value = "";
+  document.getElementById("rejectModal").classList.add("show");
+}
+function closeRejectModal(){
+  document.getElementById("rejectModal").classList.remove("show");
+}
+function confirmReject(){
+  const id = document.getElementById("rejectId").value;
+  const reason = document.getElementById("rejectReason").value.trim();
+  if(!reason){ alert("Please enter rejection reason."); return; }
+  const r = readings.find(x=>x.id===id);
+  if(!r) return;
+  r.status = "Rejected";
+  r.rejectionReason = reason;
+  r.verifiedAt = nowTime();
+  r.verifiedBy = session ? session.name : "Verifier";
+  saveAll();
+  closeRejectModal();
+  renderAll();
+}
+function filteredReadings(){
+  const ind = document.getElementById("reportIndustry").value;
+  const from = document.getElementById("reportFrom").value;
+  const to = document.getElementById("reportTo").value;
+  const status = document.getElementById("reportStatus").value;
+  return readings.filter(r=>{
+    if(ind && r.industryId !== ind) return false;
+    if(from && r.date < from) return false;
+    if(to && r.date > to) return false;
+    if(status && r.status !== status) return false;
+    return true;
+  }).sort((a,b)=>(b.date+b.slot).localeCompare(a.date+a.slot));
+}
+function viewReading(id){
+  const r = readings.find(x=>x.id===id);
+  if(!r) return;
+  const rows = [
+    ["Industry", industryName(r.industryId)],
+    ["Date", r.date],
+    ["Reading Time", r.slot],
+    ["Meter Point", r.meterPoint],
+    ["Previous Reading", r.previousReading],
+    ["Current Reading", r.currentReading],
+    ["Difference / Flow", Number(r.flow).toFixed(2) + " " + r.unit],
+    ["Unit", r.unit],
+    ["Status", statusBadge(r.status)],
+    ["System Alerts", r.alerts || "None"],
+    ["Remarks", r.remarks || "—"],
+    ["Rejection Reason", r.rejectionReason || "—"],
+    ["Meter Photo", r.photo || "—"],
+    ["Operator Signature", r.operator || "—"],
+    ["Inspector Signature", r.inspector || "—"],
+    ["Submitted By", r.submittedBy || "—"],
+    ["Submitted At", r.createdAt || "—"],
+    ["Verified By", r.verifiedBy || "—"],
+    ["Verified At", r.verifiedAt || "—"]
+  ];
+  document.getElementById("readingDetailTitle").textContent = "Reading Details — " + industryName(r.industryId);
+  document.getElementById("readingDetailBody").innerHTML =
+    `<div style="display:grid;grid-template-columns:170px 1fr;gap:10px 16px;font-size:14px;align-items:start">` +
+    rows.map(x=>`<div style="font-weight:700;color:#475569">${x[0]}</div><div>${x[1]}</div>`).join("") +
+    `</div>`;
+  document.getElementById("readingDetailModal").classList.add("show");
+}
+function closeReadingDetail(){
+  document.getElementById("readingDetailModal").classList.remove("show");
+}
+function renderReports(){
+  const rows = filteredReadings();
+  document.getElementById("repTotal").textContent = rows.length;
+  document.getElementById("repApproved").textContent = rows.filter(r=>r.status==="Approved").length;
+  document.getElementById("repPending").textContent = rows.filter(r=>["Pending","Late Entry","Corrected Entry"].includes(r.status)).length;
+  document.getElementById("repRejected").textContent = rows.filter(r=>r.status==="Rejected").length;
+  document.getElementById("repFlow").textContent = rows.reduce((s,r)=>s+Number(r.flow||0),0).toFixed(2);
+  document.getElementById("reportRows").innerHTML = rows.map(r=>`
+    <tr>
+      <td>${r.date}</td>
+      <td>${r.slot}</td>
+      <td>${industryName(r.industryId)}</td>
+      <td>${r.meterPoint}</td>
+      <td>${r.previousReading}</td>
+      <td>${r.currentReading}</td>
+      <td>${Number(r.flow).toFixed(2)}</td>
+      <td>${r.unit}</td>
+      <td>${r.photo || "-"}</td>
+      <td>${r.operator}</td>
+      <td>${statusBadge(r.status)}</td>
+      <td class="no-print"><button class="btn small secondary" onclick="viewReading('${r.id}')">View</button></td>
+    </tr>
+  `).join("");
+}
+function clearReportFilters(){
+  document.getElementById("reportIndustry").value = "";
+  document.getElementById("reportFrom").value = "";
+  document.getElementById("reportTo").value = "";
+  document.getElementById("reportStatus").value = "";
+  renderReports();
+}
+function downloadCSV(){
+  const rows = filteredReadings();
+  const headers = ["Date","Slot","Industry","Meter Point","Previous","Current","Flow","Unit","Photo","Operator","Inspector","Status","Alerts","Remarks","Rejection Reason","Submitted At"];
+  const csvRows = [headers.join(",")];
+  rows.forEach(r=>{
+    const vals = [
+      r.date,r.slot,industryName(r.industryId),r.meterPoint,r.previousReading,r.currentReading,r.flow,r.unit,r.photo,r.operator,r.inspector,r.status,r.alerts,r.remarks,r.rejectionReason,r.createdAt
+    ].map(v=>`"${String(v||"").replaceAll('"','""')}"`);
+    csvRows.push(vals.join(","));
+  });
+  const blob = new Blob([csvRows.join("\n")], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "textile_wastewater_meter_reading_report.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function renderIndustries(){
+  document.getElementById("industryRows").innerHTML = industries.map(ind=>`
+    <tr>
+      <td><b>${ind.name}</b><div class="mini">${ind.address || ""}</div></td>
+      <td>${ind.owner}</td>
+      <td>${ind.mobile}</td>
+      <td>${ind.consent}</td>
+      <td>${ind.kld}</td>
+      <td>${ind.etp}</td>
+      <td>${ind.ro}</td>
+      <td>${ind.mee}</td>
+      <td>${activeBadge(ind.status)}</td>
+      <td>
+        <button class="btn small secondary" onclick="editIndustry('${ind.id}')">Edit</button>
+        <button class="btn small danger" onclick="deleteIndustry('${ind.id}')">Delete</button>
+      </td>
+    </tr>
+  `).join("");
+}
+function openIndustryModal(){
+  document.getElementById("industryModalTitle").textContent = "Add Industry";
+  document.getElementById("industryForm").reset();
+  document.getElementById("industryId").value = "";
+  document.getElementById("industryModal").classList.add("show");
+}
+function closeIndustryModal(){
+  document.getElementById("industryModal").classList.remove("show");
+}
+function editIndustry(id){
+  const ind = industries.find(x=>x.id===id);
+  if(!ind) return;
+  document.getElementById("industryModalTitle").textContent = "Edit Industry";
+  document.getElementById("industryId").value = ind.id;
+  document.getElementById("indName").value = ind.name;
+  document.getElementById("indOwner").value = ind.owner;
+  document.getElementById("indContact").value = ind.contact;
+  document.getElementById("indMobile").value = ind.mobile;
+  document.getElementById("indEmail").value = ind.email;
+  document.getElementById("indAddress").value = ind.address;
+  document.getElementById("indConsent").value = ind.consent;
+  document.getElementById("indCetp").value = ind.cetp || CETP_LIST[0];
+  document.getElementById("indKld").value = ind.kld;
+  document.getElementById("indEtp").value = ind.etp;
+  document.getElementById("indRo").value = ind.ro;
+  document.getElementById("indMee").value = ind.mee;
+  document.getElementById("indStatus").value = ind.status;
+  document.getElementById("industryModal").classList.add("show");
+}
+function saveIndustry(e){
+  e.preventDefault();
+  const id = document.getElementById("industryId").value || uid();
+  const data = {
+    id,
+    name:document.getElementById("indName").value,
+    owner:document.getElementById("indOwner").value,
+    contact:document.getElementById("indContact").value,
+    mobile:document.getElementById("indMobile").value,
+    email:document.getElementById("indEmail").value,
+    address:document.getElementById("indAddress").value,
+    consent:document.getElementById("indConsent").value,
+    cetp:document.getElementById("indCetp").value,
+    kld:Number(document.getElementById("indKld").value||0),
+    etp:Number(document.getElementById("indEtp").value||0),
+    ro:Number(document.getElementById("indRo").value||0),
+    mee:Number(document.getElementById("indMee").value||0),
+    status:document.getElementById("indStatus").value
+  };
+  const index = industries.findIndex(x=>x.id===id);
+  if(index >= 0) industries[index] = data; else industries.push(data);
+  saveAll();
+  closeIndustryModal();
+  populateIndustrySelects();
+  renderAll();
+}
+function deleteIndustry(id){
+  if(!confirm("Delete this industry? Existing readings will remain but industry name may show as deleted.")) return;
+  industries = industries.filter(x=>x.id!==id);
+  saveAll();
+  populateIndustrySelects();
+  renderAll();
+}
+function seedDemoData(){
+  const t = today();
+  industries.forEach((ind,idx)=>{
+    meterPoints.slice(0,8).forEach((m,i)=>{
+      const prev = 10000 + idx*2000 + i*500;
+      const flow = 10 + idx*5 + i;
+      if(!readings.some(r=>r.industryId===ind.id && r.date===t && r.slot==="8 AM" && r.meterPoint===m)){
+        readings.push({
+          id:uid(), industryId:ind.id, date:t, slot:"8 AM", meterPoint:m,
+          previousReading:prev, currentReading:prev+flow, flow:flow, unit:"KL",
+          photo:"meter_photo_demo.jpg", operator:"Operator Demo", inspector:"Inspector Demo",
+          remarks:"Demo entry", alerts:"", status:i%5===0?"Late Entry":"Pending",
+          rejectionReason:"", submittedBy:"Demo User", createdAt:nowTime()
+        });
+      }
+    });
+  });
+  saveAll();
+  renderAll();
+}
+function resetAllData(){
+  if(!confirm("Reset all local data and reload sample industries?")) return;
+  localStorage.removeItem("wm_industries");
+  localStorage.removeItem("wm_readings");
+  industries = sampleIndustries;
+  readings = [];
+  saveAll();
+  populateIndustrySelects();
+  renderAll();
+}
+/* ============================================================
+   Individual ETP's Section (self-contained demo module)
+   ============================================================ */
+const etpMeterPoints = [
+  "Inlet Flow Meter","ETP Inlet Meter","ETP Outlet Meter","RO Feed Meter",
+  "RO Permeate Meter","RO Reject Meter","MEE Feed Meter","MEE Condensate Meter","Final Disposal Meter"
+];
+const etpProcessStages = [
+  "Raw Wastewater","Collection Tank","Equalization Tank","Primary Treatment","Secondary Treatment",
+  "ETP Outlet","RO Feed","RO Permeate","RO Reject","MEE Feed","MEE Condensate","Final Treated Water"
+];
+
+function etpRng(seed){let a=seed>>>0;return function(){a|=0;a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
+
+const etpIndustries = (function(){
+  const names=[
+    "Maru Textile Mills","Shree Balaji Processors","Rajasthan Dyeing Works","Marwar Synthetics",
+    "Balotra Textile Industries","Nakoda Fabrics","Jain Dyeing & Printing","Shakti Processors",
+    "Heera Textile Mills","Ganpati Synthetics","Mahalaxmi Dyeing","RIICO Textile Unit",
+    "Bothra Processing House","Surana Fabrics","Luni River Textiles","Aravalli Dyeing Mills",
+    "Khandelwal Processors","Vardhman Textile Works","Sumangal Synthetics","Padmavati Dyeing",
+    "Navkar Fabrics","Mewar Textile Processors","Suncity Dyeing","Chamunda Textile Mills",
+    "Bhandari Processors","Kalptaru Synthetics","Jeen Mata Fabrics","Om Shanti Dyeing",
+    "Deepak Textile Unit","Rathore Processing","Saraswati Dyeing Mills","Goyal Synthetics",
+    "Annapurna Fabrics","Shiv Shakti Processors","Marudhar Textiles","Bikaner Dyeing Works",
+    "Thar Textile Mills","Kuber Synthetics","Jodhana Fabrics","Veer Tejaji Processors"
+  ];
+  const r=etpRng(99173);
+  const ri=(a,b)=>Math.floor(a+r()*(b-a+1));
+  const rf=(a,b)=>a+r()*(b-a);
+  const cetps=["CETP Balotra","CETP Jasol","CETP Bithuja"];
+  return names.map((name,i)=>{
+    const capacity=ri(80,600);
+    const daily=Math.round(capacity*rf(0.5,1.12));
+    const util=Math.round(daily/capacity*100);
+    const roRec=Math.round(rf(58,79));
+    const online=r()>0.06;
+    let compliance=Math.round(util>100?rf(58,74):rf(78,99));
+    if(!online) compliance=Math.max(55,compliance-12);
+    let status=(util>100||compliance<70)?"red":((util>88||compliance<84)?"yellow":"green");
+    const f={};
+    f["Inlet Flow Meter"]=daily;
+    f["ETP Inlet Meter"]=Math.round(daily*0.99);
+    f["ETP Outlet Meter"]=Math.round(daily*0.95);
+    f["RO Feed Meter"]=Math.round(daily*0.93);
+    f["RO Permeate Meter"]=Math.round(daily*0.93*roRec/100);
+    f["RO Reject Meter"]=Math.round(daily*0.93*(1-roRec/100));
+    f["MEE Feed Meter"]=f["RO Reject Meter"];
+    f["MEE Condensate Meter"]=Math.round(f["MEE Feed Meter"]*0.88);
+    f["Final Disposal Meter"]=Math.max(0,Math.round(daily*0.01));
+    const meters=etpMeterPoints.map((m,mi)=>{
+      const dailyFlow=f[m];
+      const previous=ri(10000,90000)+mi*1200;
+      return {name:m,previous,current:previous+dailyFlow,dailyFlow,monthlyFlow:Math.round(dailyFlow*rf(27,30)),
+        util:Math.min(120,Math.round(dailyFlow/(capacity*1.05)*100))};
+    });
+    return {code:"BLT-ETP-"+String(i+1).padStart(3,"0"),name,cetp:cetps[i%3],capacity,daily,util,roRec,online,
+      compliance,treatEff:Math.round(rf(86,98)),dailyComp:compliance,
+      monthlyComp:Math.max(60,Math.min(99,compliance+ri(-5,4))),meters,flows:f};
+  });
+})();
+
+function etpStatusText(s){return s==="green"?"Compliant":s==="yellow"?"Attention Required":"Non-Compliant";}
+function etpBadge(s){const cls=s==="green"?"approved":s==="yellow"?"late":"rejected";return `<span class="badge ${cls}">${etpStatusText(s)}</span>`;}
+
+function etpAlerts(ind){
+  const a=[];
+  if(ind.util>100) a.push({t:"Capacity Exceeded",s:"high",d:`Flow ${ind.daily} KL exceeds approved capacity ${ind.capacity} KL`});
+  if(!ind.online) a.push({t:"Missing Reading",s:"high",d:"No meter reading received today"});
+  if(ind.daily>420) a.push({t:"High Water Consumption",s:"med",d:`Daily wastewater ${ind.daily} KL is above cluster average`});
+  if(ind.roRec<65) a.push({t:"RO Recovery Below Threshold",s:"med",d:`RO recovery ${ind.roRec}% is below 65% target`});
+  const rejPct=Math.round(ind.flows["RO Reject Meter"]/Math.max(1,ind.flows["RO Feed Meter"])*100);
+  if(rejPct>34) a.push({t:"Excess Reject Generation",s:"med",d:`RO reject is ${rejPct}% of RO feed`});
+  if(ind.meters.some(m=>m.util>110)) a.push({t:"Abnormal Flow Pattern",s:"med",d:"One or more meters show abnormal flow"});
+  if(ind.util<40) a.push({t:"ETP Underutilized",s:"low",d:`ETP utilization is only ${ind.util}%`});
+  return a;
+}
+
+function renderEtpKpis(){
+  const tot=etpIndustries.length;
+  const active=etpIndustries.filter(i=>i.online).length;
+  const treated=etpIndustries.reduce((s,i)=>s+i.daily,0);
+  const avgC=Math.round(etpIndustries.reduce((s,i)=>s+i.compliance,0)/tot);
+  const exceed=etpIndustries.filter(i=>i.util>100).length;
+  const highW=etpIndustries.filter(i=>i.daily>420).length;
+  const cards=[
+    ["Total Industries Monitored",tot,"Textile units on platform","#006D77"],
+    ["Active ETPs",active,"Reporting today","#0EA5A8"],
+    ["Wastewater Treated Today",treated.toLocaleString("en-IN")+" KL","Across all ETPs","#16a34a"],
+    ["Average Compliance Score",avgC+"%","Cluster-wide score","#16a34a"],
+    ["Industries Exceeding Capacity",exceed,"Flow above approved limit","#dc2626"],
+    ["High Water Consumption",highW,"Above cluster average","#f59e0b"]
+  ];
+  document.getElementById("etpKpis").innerHTML=cards.map(c=>
+    `<div class="etp-kpi" style="border-left-color:${c[3]}"><div class="l">${c[0]}</div><div class="v" style="color:${c[3]}">${c[1]}</div><div class="s">${c[2]}</div></div>`
+  ).join("");
+}
+
+function renderEtpGrid(){
+  const st=document.getElementById("etpStatusFilter").value;
+  const q=(document.getElementById("etpSearch").value||"").toLowerCase();
+  const list=etpIndustries.filter(i=>(!st||i.status===st)&&(!q||i.name.toLowerCase().includes(q)||i.code.toLowerCase().includes(q)));
+  document.getElementById("etpGrid").innerHTML = list.length ? list.map(i=>`
+    <div class="ind-card ${i.status}" onclick="openEtpDetail('${i.code}')">
+      <div class="ic-head">
+        <div><div class="ic-name">${i.name}</div><div class="ic-code">${i.code} · ${i.cetp}</div></div>
+        ${etpBadge(i.status)}
+      </div>
+      <div class="ic-metrics">
+        <div class="ic-m"><span>Daily Wastewater</span><b>${i.daily} KL</b></div>
+        <div class="ic-m"><span>ETP Capacity</span><b>${i.capacity} KL</b></div>
+      </div>
+      <div class="ic-bar-label"><span>Current Utilization</span><span>${i.util}%</span></div>
+      <div class="bar"><span style="width:${Math.min(100,i.util)}%;background:${i.util>100?'#dc2626':i.util>88?'#f59e0b':'#16a34a'}"></span></div>
+      <div class="ic-bar-label"><span>Compliance Score</span><span>${i.compliance}%</span></div>
+      <div class="bar"><span style="width:${i.compliance}%;background:${i.compliance<70?'#dc2626':i.compliance<84?'#f59e0b':'#16a34a'}"></span></div>
+      <div class="ic-foot">${i.online?'🟢 Operational':'🔴 No Reading Today'}</div>
+    </div>`).join("") : '<div class="mini">No industries match your filters.</div>';
+}
+
+function renderEtpAlerts(){
+  const all=[];
+  etpIndustries.forEach(i=>etpAlerts(i).forEach(a=>all.push(Object.assign({},a,{ind:i.name,code:i.code}))));
+  const order={high:0,med:1,low:2};
+  all.sort((x,y)=>order[x.s]-order[y.s]);
+  const top=all.slice(0,6);
+  document.getElementById("etpAlerts").innerHTML = top.length ? top.map(a=>`
+    <div class="alert-card ${a.s}">
+      <div class="ac-ic">${a.s==="high"?"🛑":a.s==="med"?"⚠️":"ℹ️"}</div>
+      <div><div class="ac-t">${a.t}</div><div class="ac-d">${a.d}</div><div class="ac-m">${a.ind} · ${a.code}</div></div>
+    </div>`).join("") : '<div class="mini">No active alerts.</div>';
+}
+
+let etpCharts=[];
+function etpChartOpts(extra){return Object.assign({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:"#eef2f2"}}}},extra||{});}
+function etpTrendData(){const r=etpRng(555);const base=etpIndustries.reduce((s,i)=>s+i.daily,0);const labels=[],vals=[];for(let d=13;d>=0;d--){labels.push(d===0?"Today":"D-"+d);vals.push(Math.round(base*(0.9+r()*0.2)));}return{labels,vals};}
+function renderEtpCharts(){
+  if(typeof Chart==="undefined") return;
+  etpCharts.forEach(c=>c.destroy()); etpCharts=[];
+  const teal="#006D77",teal2="#0EA5A8";
+  const td=etpTrendData();
+  etpCharts.push(new Chart(document.getElementById("etpTrend"),{type:"line",data:{labels:td.labels,datasets:[{label:"Wastewater Treated (KL)",data:td.vals,borderColor:teal,backgroundColor:"rgba(0,109,119,.12)",fill:true,tension:.35,borderWidth:2.5,pointRadius:2}]},options:etpChartOpts()}));
+  const comp=etpIndustries.slice().sort((a,b)=>b.daily-a.daily).slice(0,12);
+  etpCharts.push(new Chart(document.getElementById("etpCompare"),{type:"bar",data:{labels:comp.map(i=>i.code.replace("BLT-ETP-","#")),datasets:[{data:comp.map(i=>i.daily),backgroundColor:teal2,borderRadius:6}]},options:etpChartOpts()}));
+  const top=etpIndustries.slice().sort((a,b)=>b.daily-a.daily).slice(0,10);
+  etpCharts.push(new Chart(document.getElementById("etpTop"),{type:"bar",data:{labels:top.map(i=>i.name),datasets:[{data:top.map(i=>i.daily),backgroundColor:teal,borderRadius:5}]},options:etpChartOpts({indexAxis:"y"})}));
+  const rank=etpIndustries.slice().sort((a,b)=>b.compliance-a.compliance).slice(0,12);
+  etpCharts.push(new Chart(document.getElementById("etpRank"),{type:"bar",data:{labels:rank.map(i=>i.name),datasets:[{data:rank.map(i=>i.compliance),backgroundColor:rank.map(i=>i.status==="green"?"#16a34a":i.status==="yellow"?"#f59e0b":"#dc2626"),borderRadius:5}]},options:etpChartOpts({indexAxis:"y"})}));
+}
+
+function etpStageFlows(i){const f=i.flows;return [i.daily,Math.round(i.daily*0.99),f["ETP Inlet Meter"],Math.round(f["ETP Inlet Meter"]*0.97),f["ETP Outlet Meter"],f["ETP Outlet Meter"],f["RO Feed Meter"],f["RO Permeate Meter"],f["RO Reject Meter"],f["MEE Feed Meter"],f["MEE Condensate Meter"],Math.round(f["RO Permeate Meter"]+f["MEE Condensate Meter"])];}
+function etpGauge(label,val,color){const deg=Math.min(100,val)*3.6;return `<div class="gauge-card"><div class="gauge" style="background:conic-gradient(${color} ${deg}deg,#e8eef0 0)"><div class="gauge-hole"><b style="color:${color}">${val}%</b></div></div><div class="gauge-label">${label}</div></div>`;}
+
+function openEtpDetail(code){
+  const i=etpIndustries.find(x=>x.code===code); if(!i) return;
+  const meters=i.meters.map(m=>`
+    <div class="meter-card">
+      <div class="mn">${m.name}</div>
+      <div class="mrow"><span>Previous Reading</span><b>${m.previous.toLocaleString("en-IN")}</b></div>
+      <div class="mrow"><span>Current Reading</span><b>${m.current.toLocaleString("en-IN")}</b></div>
+      <div class="mrow"><span>Daily Flow</span><b>${m.dailyFlow} KL</b></div>
+      <div class="mrow"><span>Monthly Flow</span><b>${m.monthlyFlow.toLocaleString("en-IN")} KL</b></div>
+      <div class="ic-bar-label"><span>Capacity Utilization</span><span>${m.util}%</span></div>
+      <div class="bar"><span style="width:${Math.min(100,m.util)}%;background:${m.util>100?'#dc2626':m.util>88?'#f59e0b':'#0EA5A8'}"></span></div>
+    </div>`).join("");
+  const sf=etpStageFlows(i);
+  const proc=etpProcessStages.map((s,si)=>{
+    const stStatus=!i.online?"off":(i.util>100&&si>=6?"warn":"ok");
+    const arrow=si<etpProcessStages.length-1?`<div class="proc-arrow"><span class="flow-dot"></span>→</div>`:"";
+    return `<div class="proc-wrap"><div class="proc-stage ${stStatus==="ok"?"":stStatus}"><div class="ps-name">${s}</div><div class="ps-flow">${sf[si]} KL</div><div class="ps-meter">Meter: ${(10000+si*1234+i.daily).toLocaleString("en-IN")}</div><div class="ps-dot ${stStatus==="ok"?"":stStatus}"></div></div>${arrow}</div>`;
+  }).join("");
+  const gauges=[
+    ["Capacity Utilization",i.util,i.util>100?'#dc2626':i.util>88?'#f59e0b':'#16a34a'],
+    ["RO Recovery Efficiency",i.roRec,i.roRec>=65?'#16a34a':'#f59e0b'],
+    ["Treatment Efficiency",i.treatEff,'#16a34a'],
+    ["Daily Compliance",i.dailyComp,i.dailyComp<70?'#dc2626':i.dailyComp<84?'#f59e0b':'#16a34a'],
+    ["Monthly Compliance",i.monthlyComp,i.monthlyComp<70?'#dc2626':i.monthlyComp<84?'#f59e0b':'#16a34a']
+  ].map(g=>etpGauge(g[0],g[1],g[2])).join("");
+  const al=etpAlerts(i);
+  const alerts=al.length?al.map(a=>`<div class="alert-card ${a.s}"><div class="ac-ic">${a.s==="high"?"🛑":a.s==="med"?"⚠️":"ℹ️"}</div><div><div class="ac-t">${a.t}</div><div class="ac-d">${a.d}</div></div></div>`).join(""):'<div class="mini">No active alerts for this ETP. ✅</div>';
+  document.getElementById("etpDetailView").innerHTML=`
+    <button class="btn secondary" onclick="closeEtpDetail()">← Back to all industries</button>
+    <div class="etp-hero" style="margin-top:14px">
+      <div><h1>${i.name}</h1><p>${i.code} · ${i.cetp} · Approved Capacity ${i.capacity} KL/day · ${i.online?'Operational':'No Reading Today'}</p></div>
+      <div>${etpBadge(i.status)}</div>
+    </div>
+    <h3 class="etp-section-head" style="margin-top:6px">ETP Process Visualization</h3>
+    <div class="card"><div class="proc">${proc}</div></div>
+    <h3 class="etp-section-head">Meter Monitoring Points</h3>
+    <div class="meter-grid">${meters}</div>
+    <h3 class="etp-section-head">Compliance Monitoring</h3>
+    <div class="card"><div class="gauge-row">${gauges}</div></div>
+    <h3 class="etp-section-head">Alerts</h3>
+    <div class="alert-grid">${alerts}</div>
+  `;
+  document.getElementById("etpListView").style.display="none";
+  document.getElementById("etpDetailView").style.display="block";
+  window.scrollTo(0,0);
+}
+function closeEtpDetail(){
+  document.getElementById("etpDetailView").style.display="none";
+  document.getElementById("etpListView").style.display="block";
+}
+function renderEtpSection(){
+  document.getElementById("etpListView").style.display="block";
+  document.getElementById("etpDetailView").style.display="none";
+  renderEtpKpis(); renderEtpGrid(); renderEtpAlerts(); renderEtpCharts();
+}
+
+function renderAll(){
+  renderDashboard();
+  renderApprovals();
+  renderReports();
+  renderIndustries();
+}
+if(session) initApp();
+else{
+  document.getElementById("entryDate").value = today();
+}
+window.addEventListener("load",()=>{
+  if(!localStorage.getItem("wm_industries")) saveAll();
+});
+</script>
+</body>
+</html>
