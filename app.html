@@ -488,6 +488,14 @@
       .meter-grid{grid-template-columns:1fr}
       .ic-metrics{grid-template-columns:1fr 1fr}
     }
+
+    /* Crafted by Digital Hammerr badge */
+    .dh-badge{position:fixed;right:16px;bottom:16px;z-index:9999;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border:1px solid rgba(0,0,0,.08);padding:7px 15px 7px 8px;border-radius:999px;box-shadow:0 10px 26px rgba(2,72,81,.2);font-family:var(--font-body);font-size:13px;color:#1f2937;pointer-events:none}
+    .dh-badge .dh-logo{width:30px;height:30px;flex:none;display:block;border-radius:50%;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+    .dh-badge .dh-logo svg{width:100%;height:100%;display:block}
+    .dh-badge .dh-text{font-weight:500;line-height:1;white-space:nowrap}
+    .dh-badge .dh-text b{font-weight:800;color:#9c1b22}
+    @media(max-width:480px){.dh-badge .dh-text{display:none}.dh-badge{padding:6px}}
   </style>
 </head>
 <body>
@@ -920,6 +928,24 @@
       <button class="btn secondary" onclick="closeReadingDetail()">Close</button>
     </div>
   </div>
+</div>
+
+<!-- Crafted by Digital Hammerr -->
+<div class="dh-badge no-print" title="Crafted by Digital Hammerr">
+  <span class="dh-logo" aria-hidden="true">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="50" fill="#efeeec"/>
+      <path d="M50 19 A31 31 0 0 1 50 81 L50 65 A15 15 0 0 0 50 35 Z" fill="#9c1b22"/>
+      <g fill="#141414">
+        <path d="M30 23 C21 22 14 27 11 33 C16 33 21 35 25 39 L34 39 L34 23 Z"/>
+        <rect x="29" y="22" width="45" height="18" rx="5"/>
+        <rect x="41" y="37" width="14" height="46" rx="4"/>
+      </g>
+      <circle cx="51" cy="20" r="6" fill="#efeeec"/>
+      <path d="M12 32 q7 0 12 4" stroke="#efeeec" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    </svg>
+  </span>
+  <span class="dh-text">Crafted by <b>Digital Hammerr</b></span>
 </div>
 
 <script>
